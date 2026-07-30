@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.1, maximum-scale=10.0">
+<title>NERV MAGI SYSTEMS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+:root {
+  --nge-bg: #0a0a0a;
+  --nge-orange: #FF6600;
+  --nge-red: #FF2200;
+  --nge-green: #00FF66;
+  --nge-dim: #331a00;
+  --nge-panel: #111108;
+  --nge-border: #FF6600;
+  --nge-text: #FFAA44;
+  --nge-muted: #664400;
+  --nge-white: #FFE8CC;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--nge-bg);
+  color: var(--nge-text);
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  min-height: 100vh;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  background: rgba(255,102,0,0.08);
+  border-bottom: 1px solid var(--nge-border);
+  padding: 8px 16px;
+  gap: 8px;
+}
+.main-nav .logo {
+  font-size: 12px;
+  color: var(--nge-orange);
+  letter-spacing: 3px;
+  margin-right: auto;
+}
+.nav-btn {
+  background: transparent;
+  border: 1px solid var(--nge-muted);
+  color: var(--nge-muted);
+  font-family: inherit;
+  font-size: 10px;
+  letter-spacing: 2px;
+  padding: 6px 14px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.1s;
+}
+.nav-btn:hover { border-color: var(--nge-orange); color: var(--nge-orange); }
+.nav-btn.active { border-color: var(--nge-orange); color: var(--nge-bg); background: var(--nge-orange); }
+
+.system { display: none; }
+.system.active { display: block; }
+
+.scanlines {
+  position: absolute; inset: 0; pointer-events: none; z-index: 50;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+}
+
+/* ============ SUPERCOMPUTER ============ */
+.sc-root { position: relative; min-height: 760px; overflow: hidden; border: 1px solid var(--nge-border); min-width: 1280px; }
+.sc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--nge-border);
+  padding: 6px 14px; position: relative; z-index: 60;
+  background: rgba(255,102,0,0.07);
+}
+.sc-logo { font-size: 11px; color: var(--nge-orange); letter-spacing: 3px; text-transform: uppercase; }
+.sc-status { font-size: 10px; color: var(--nge-green); letter-spacing: 2px; }
+.sc-status.active { color: var(--nge-orange); }
+.sc-status.alert { color: var(--nge-red); animation: blink 0.6s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.sc-stage {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  margin: 0 auto;
+}
+.sc-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1280px;
+  height: 720px;
+  z-index: 1;
+}
+.sc-svg path {
+  fill: none;
+  stroke: var(--nge-muted);
+  stroke-width: 1.5;
+  transition: stroke 0.2s;
+}
+.sc-svg path.flash-green { animation: flashGreen 0.8s ease; }
+.sc-svg path.flash-red { animation: flashRed 0.8s ease; }
+@keyframes flashGreen {
+  0% { stroke: var(--nge-muted); stroke-width: 1.5; filter: none; }
+  40% { stroke: var(--nge-green); stroke-width: 3; filter: drop-shadow(0 0 6px var(--nge-green)); }
+  100% { stroke: var(--nge-muted); stroke-width: 1.5; filter: none; }
+}
+@keyframes flashRed {
+  0% { stroke: var(--nge-muted); stroke-width: 1.5; filter: none; }
+  40% { stroke: var(--nge-red); stroke-width: 3; filter: drop-shadow(0 0 6px var(--nge-red)); }
+  100% { stroke: var(--nge-muted); stroke-width: 1.5; filter: none; }
+}
+
+.sc-comp {
+  position: absolute;
+  background: var(--nge-panel);
+  border: 1px solid var(--nge-border);
+  padding: 6px;
+  z-index: 2;
+  color: var(--nge-text);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.sc-comp .label { font-size: 8px; color: var(--nge-muted); letter-spacing: 2px; }
+.sc-comp .name { font-size: 10px; color: var(--nge-orange); letter-spacing: 2px; margin-top: 2px; }
+.sc-comp.active { border-color: var(--nge-green); box-shadow: 0 0 10px rgba(0,255,102,0.35); }
+.sc-comp.alert { border-color: var(--nge-red); box-shadow: 0 0 10px rgba(255,34,0,0.4); }
+
+.ind-row { display: flex; gap: 3px; margin-top: 4px; }
+.ind {
+  width: 6px; height: 6px; border-radius: 0;
+  background: var(--nge-dim);
+  border: 1px solid var(--nge-muted);
+}
+.ind.on {
+  background: var(--nge-green);
+  box-shadow: 0 0 5px var(--nge-green);
+  animation: indBlink 0.35s step-end infinite;
+}
+.ind.red.on { background: var(--nge-red); box-shadow: 0 0 5px var(--nge-red); }
+@keyframes indBlink { 50% { opacity: 0.25; } }
+.ind.idle-blink { animation: idlePulse 2.8s ease-in-out infinite; }
+@keyframes idlePulse {
+  0%, 100% { background: var(--nge-dim); box-shadow: none; }
+  50% { background: rgba(255,102,0,0.55); box-shadow: 0 0 4px rgba(255,102,0,0.4); }
+}
+
+.sc-kbd { cursor: pointer; transition: all 0.1s; }
+.sc-kbd:hover { border-color: var(--nge-green); box-shadow: 0 0 10px rgba(0,255,102,0.35); }
+.kbd-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  margin: 4px 2px;
+  width: 100%;
+}
+.kbd-key {
+  background: var(--nge-dim);
+  border: 1px solid var(--nge-muted);
+  height: 6px;
+}
+.sc-kbd:hover .kbd-key { background: rgba(0,255,102,0.15); border-color: var(--nge-green); }
+
+.sc-printer { cursor: pointer; transition: all 0.2s; }
+.sc-printer:hover { border-color: var(--nge-green); box-shadow: 0 0 10px rgba(0,255,102,0.35); }
+.sc-printer.printing { border-color: var(--nge-green); box-shadow: 0 0 14px rgba(0,255,102,0.55); }
+.printer-body {
+  width: 82%;
+  height: 22px;
+  background: var(--nge-dim);
+  border: 1px solid var(--nge-muted);
+  margin: 4px 0 2px;
+  position: relative;
+}
+.printer-slit {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: 50%;
+  height: 2px;
+  background: var(--nge-bg);
+  border-top: 1px solid var(--nge-muted);
+  border-bottom: 1px solid var(--nge-muted);
+}
+.printer-paper {
+  width: 60%;
+  height: 8px;
+  background: var(--nge-white);
+  border: 1px solid var(--nge-muted);
+  opacity: 0.35;
+}
+.sc-printer.printing .printer-paper { opacity: 1; animation: paperFeed 0.7s ease; }
+@keyframes paperFeed {
+  0% { height: 2px; }
+  100% { height: 12px; }
+}
+
+.reel-comp {
+  padding: 4px 2px;
+  background: transparent;
+  border: none;
+  gap: 2px;
+}
+.reel-svg {
+  width: 66px;
+  height: 66px;
+  display: block;
+  overflow: visible;
+}
+.reel-svg.spinning { animation: reelSpin linear infinite; }
+@keyframes reelSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.reel-comp.active .reel-svg { filter: drop-shadow(0 0 6px var(--nge-green)); }
+.reel-comp.alert .reel-svg { filter: drop-shadow(0 0 7px var(--nge-red)); }
+.reel-name { font-size: 8px; color: var(--nge-orange); letter-spacing: 2px; margin-top: 2px; }
+.reel-pct { font-size: 9px; color: var(--nge-text); }
+
+.sc-footer {
+  border-top: 1px solid var(--nge-dim);
+  padding: 6px 14px;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 60;
+  font-size: 9px;
+  color: var(--nge-muted);
+  letter-spacing: 2px;
+}
+.sc-footer .live { color: var(--nge-green); }
+
+/* ============ MODALS ============ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.78);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--nge-bg);
+  border: 1px solid var(--nge-border);
+  padding: 18px;
+  min-width: 340px;
+  max-width: 620px;
+  max-height: 82vh;
+  position: relative;
+  box-shadow: 0 0 24px rgba(255,102,0,0.25);
+}
+.modal-title {
+  font-size: 10px;
+  color: var(--nge-orange);
+  letter-spacing: 3px;
+  border-bottom: 1px solid var(--nge-dim);
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+}
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  cursor: pointer;
+  color: var(--nge-muted);
+  font-size: 18px;
+  line-height: 1;
+}
+.modal-close:hover { color: var(--nge-red); }
+.modal-btn-row { display: flex; flex-direction: column; gap: 8px; }
+.sc-btn {
+  background: transparent;
+  border: 1px solid var(--nge-orange);
+  color: var(--nge-orange);
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 10px 16px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.1s;
+}
+.sc-btn:hover { background: rgba(255,102,0,0.15); }
+.sc-btn.active { background: var(--nge-orange); color: var(--nge-bg); }
+.sc-btn.danger { border-color: var(--nge-red); color: var(--nge-red); }
+.sc-btn.danger:hover { background: rgba(255,34,0,0.15); }
+.sc-input {
+  width: 100%;
+  background: var(--nge-panel);
+  border: 1px solid var(--nge-muted);
+  color: var(--nge-text);
+  font-family: inherit;
+  font-size: 12px;
+  padding: 10px;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+.sc-input:focus { outline: none; border-color: var(--nge-orange); }
+.paper-output {
+  max-height: 56vh;
+  overflow-y: auto;
+  font-size: 11px;
+  color: var(--nge-text);
+  background: var(--nge-panel);
+  border: 1px solid var(--nge-dim);
+  padding: 10px;
+  min-width: 480px;
+}
+.paper-output::-webkit-scrollbar { width: 8px; }
+.paper-output::-webkit-scrollbar-track { background: var(--nge-bg); }
+.paper-output::-webkit-scrollbar-thumb { background: var(--nge-dim); border: 1px solid var(--nge-muted); }
+.paper-entry {
+  border-bottom: 1px dashed var(--nge-dim);
+  padding: 6px 0;
+  word-break: break-all;
+}
+.paper-entry:last-child { border-bottom: none; }
+.paper-entry .ts { color: var(--nge-muted); font-size: 9px; letter-spacing: 1px; }
+.paper-entry .title { color: var(--nge-orange); font-size: 10px; letter-spacing: 2px; margin-left: 6px; }
+.paper-entry .body { color: var(--nge-text); font-size: 11px; margin-top: 4px; white-space: pre-wrap; }
+
+/* ============ TIMER ============ */
+.nge-root {
+  background: var(--nge-bg);
+  color: var(--nge-text);
+  min-height: 420px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--nge-border);
+}
+.nge-header {
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--nge-border);
+  padding: 6px 14px; position: relative; z-index: 60;
+  background: rgba(255,102,0,0.07);
+}
+.nge-logo { font-size: 11px; color: var(--nge-orange); letter-spacing: 3px; text-transform: uppercase; }
+.nge-status { font-size: 10px; color: var(--nge-green); letter-spacing: 2px; }
+.nge-status.alert { color: var(--nge-red); animation: blink 0.6s step-end infinite; }
+.nge-body { display: grid; grid-template-columns: 1fr 180px; gap: 0; position: relative; z-index: 1; }
+.nge-main { padding: 16px; border-right: 1px solid var(--nge-dim); }
+.nge-label { font-size: 9px; letter-spacing: 3px; color: var(--nge-muted); text-transform: uppercase; margin-bottom: 4px; }
+.nge-display {
+  font-size: 62px; font-weight: normal; letter-spacing: 4px;
+  color: var(--nge-orange); line-height: 1;
+  text-shadow: 0 0 20px rgba(255,102,0,0.4);
+  margin: 8px 0 16px;
+}
+.nge-display.running { color: var(--nge-green); text-shadow: 0 0 20px rgba(0,255,102,0.4); }
+.nge-display.finished { color: var(--nge-red); animation: blink 0.5s step-end infinite; }
+.nge-progress-wrap { margin-bottom: 14px; }
+.nge-progress-track { height: 6px; background: var(--nge-dim); border: 1px solid var(--nge-muted); position: relative; }
+.nge-progress-fill { height: 100%; background: var(--nge-orange); transition: width 1s linear; }
+.nge-progress-fill.running { background: var(--nge-green); }
+.nge-progress-fill.finished { background: var(--nge-red); }
+.nge-tick-row { display: flex; justify-content: space-between; margin-top: 3px; }
+.nge-tick { font-size: 8px; color: var(--nge-muted); }
+.nge-preset-row { display: flex; gap: 6px; margin-bottom: 12px; }
+.nge-btn {
+  background: transparent; border: 1px solid var(--nge-muted); color: var(--nge-muted);
+  font-family: inherit; font-size: 10px; letter-spacing: 2px;
+  padding: 5px 10px; cursor: pointer; text-transform: uppercase; transition: all 0.1s;
+}
+.nge-btn:hover { border-color: var(--nge-orange); color: var(--nge-orange); background: rgba(255,102,0,0.08); }
+.nge-btn.active { border-color: var(--nge-orange); color: var(--nge-bg); background: var(--nge-orange); }
+.nge-btn.danger { border-color: var(--nge-red); color: var(--nge-red); }
+.nge-btn.danger:hover { background: rgba(255,34,0,0.12); }
+.nge-ctrl-row { display: flex; gap: 8px; }
+.nge-ctrl-btn {
+  flex: 1; padding: 10px; font-family: inherit; font-size: 11px;
+  letter-spacing: 3px; text-transform: uppercase; cursor: pointer;
+  border: 1px solid var(--nge-orange); color: var(--nge-orange);
+  background: rgba(255,102,0,0.06); transition: all 0.1s;
+}
+.nge-ctrl-btn:hover { background: rgba(255,102,0,0.18); }
+.nge-ctrl-btn:active { background: var(--nge-orange); color: var(--nge-bg); }
+.nge-ctrl-btn.go { border-color: var(--nge-green); color: var(--nge-green); background: rgba(0,255,102,0.05); }
+.nge-ctrl-btn.go:hover { background: rgba(0,255,102,0.15); }
+.nge-sidebar { padding: 10px; }
+.nge-panel { border: 1px solid var(--nge-dim); padding: 8px; margin-bottom: 10px; background: var(--nge-panel); }
+.nge-panel-title { font-size: 8px; letter-spacing: 3px; color: var(--nge-muted); margin-bottom: 6px; text-transform: uppercase; border-bottom: 1px solid var(--nge-dim); padding-bottom: 4px; }
+.nge-data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+.nge-data-key { font-size: 9px; color: var(--nge-muted); }
+.nge-data-val { font-size: 11px; color: var(--nge-text); }
+.nge-data-val.hi { color: var(--nge-green); }
+.nge-data-val.warn { color: var(--nge-red); }
+.nge-custom-row { display: flex; gap: 4px; align-items: center; margin-bottom: 12px; }
+.nge-input {
+  background: var(--nge-panel); border: 1px solid var(--nge-muted); color: var(--nge-text);
+  font-family: inherit; font-size: 13px; padding: 5px 8px; width: 52px; text-align: center;
+}
+.nge-input:focus { outline: none; border-color: var(--nge-orange); }
+.nge-sep { color: var(--nge-muted); font-size: 14px; }
+.nge-footer { border-top: 1px solid var(--nge-dim); padding: 5px 14px; display: flex; justify-content: space-between; position: relative; z-index: 60; }
+.nge-foot-item { font-size: 8px; color: var(--nge-muted); letter-spacing: 2px; }
+.nge-foot-item.live { color: var(--nge-green); }
+.nge-diag { display: flex; gap: 3px; margin-top: 6px; }
+.nge-diag-bar { flex: 1; height: 28px; border: 1px solid var(--nge-dim); background: var(--nge-dim); transition: background 1s; }
+.nge-diag-bar.active { background: rgba(255,102,0,0.5); }
+
+
+/* ============ MOBILE TOUCH ============ */
+button, .sc-kbd, .sc-printer, .modal-close, .nav-btn,
+.nge-btn, .nge-ctrl-btn, .nge-pwr-btn, .sc-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.modal-overlay { -webkit-overflow-scrolling: touch; }
+.paper-output { -webkit-overflow-scrolling: touch; }
+
+/* Segmented display canvas */
+.seg-canvas { display: block; margin: 6px 0 14px; background: #0a0a0a; }
+
+/* Power buttons */
+.nge-pwr-row { display: flex; gap: 8px; margin-bottom: 6px; }
+.nge-pwr-btn {
+  flex: 1; padding: 10px 6px; font-family: inherit; font-size: 9px;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+  border: 1px solid var(--nge-muted); color: var(--nge-muted);
+  background: transparent; transition: all 0.1s;
+}
+.nge-pwr-btn:hover { border-color: var(--nge-orange); color: var(--nge-orange); }
+.nge-pwr-btn.internal { border-color: var(--nge-green); color: var(--nge-green); }
+.nge-pwr-btn.internal.on { background: var(--nge-green); color: var(--nge-bg); }
+.nge-pwr-btn.external { border-color: var(--nge-orange); color: var(--nge-orange); }
+.nge-pwr-btn.external.on { background: var(--nge-orange); color: var(--nge-bg); }
+.nge-pwr-btn.recharge { border-color: var(--nge-red); color: var(--nge-red); }
+.nge-pwr-btn.recharge:hover { background: rgba(255,34,0,0.15); }
+.nge-recharge-row { display: none; gap: 8px; margin-bottom: 12px; }
+.nge-recharge-row.visible { display: flex; }
+</style>
+</head>
+<body>
+
+<nav class="main-nav">
+  <div class="logo">NERV // MAGI SYSTEMS CONSOLE</div>
+  <button class="nav-btn active" data-system="sc">SUPERCOMPUTER</button>
+  <button class="nav-btn" data-system="timer">TIMER</button>
+</nav>
+
+<section class="system active" id="sys-sc">
+  <div class="sc-root">
+    <div class="scanlines"></div>
+    <div class="sc-header">
+      <div class="sc-logo">NERV // MAGI SUPERCOMPUTER // CORE ARRAY</div>
+      <div class="sc-status" id="scStatus">STANDBY</div>
+    </div>
+
+    <div class="sc-stage">
+      <svg class="sc-svg" viewBox="0 0 1280 720" preserveAspectRatio="none">
+        <path id="p-di-int1" d="M 150 270 L 180 270 L 180 240 L 200 240" />
+        <path id="p-di-int2" d="M 150 300 L 180 300 L 180 510 L 200 510" />
+        <path id="p-int1-paper" d="M 320 280 L 320 395 L 150 395 L 150 410" />
+        <path id="p-int2-paper" d="M 200 490 L 150 490" />
+        <path id="p-int1-hub" d="M 340 245 L 470 245 L 470 370 L 580 370" />
+        <path id="p-int2-hub" d="M 340 505 L 470 505 L 470 390 L 580 390" />
+        <path id="p-hub-socket0" d="M 605 340 L 605 250 L 405 250 L 405 160" />
+        <path id="p-hub-socket1" d="M 640 340 L 640 160" />
+        <path id="p-hub-socket2" d="M 675 340 L 675 250 L 825 250 L 825 160" />
+        <path id="p-hub-socket3" d="M 605 420 L 605 535 L 405 535 L 405 570" />
+        <path id="p-hub-socket4" d="M 640 420 L 640 570" />
+        <path id="p-hub-socket5" d="M 675 420 L 675 535 L 825 535 L 825 570" />
+        <path id="p-socket0-core0" d="M 405 160 L 405 100" />
+        <path id="p-socket1-core1" d="M 615 160 L 615 100" />
+        <path id="p-socket2-core2" d="M 825 160 L 825 100" />
+        <path id="p-socket3-core3" d="M 405 600 L 405 650" />
+        <path id="p-socket4-core4" d="M 615 600 L 615 650" />
+        <path id="p-socket5-core5" d="M 825 600 L 825 650" />
+        <path id="p-hub-mdm" d="M 700 380 L 980 380" />
+        <path id="p-mdm-disc0" d="M 1120 365 L 1145 365 L 1145 260 L 1170 260" />
+        <path id="p-mdm-disc1" d="M 1120 380 L 1170 380" />
+        <path id="p-mdm-disc2" d="M 1120 395 L 1145 395 L 1145 500 L 1170 500" />
+      </svg>
+
+      <div class="sc-comp sc-kbd" style="left:30px;top:250px;width:120px;height:70px;" onclick="openInputModal()">
+        <div class="label">DIGITAL INPUT</div>
+        <div class="kbd-grid">
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+        </div>
+      </div>
+
+      <div class="sc-comp sc-printer" style="left:30px;top:410px;width:120px;height:90px;" id="compPrinter" onclick="openPaperModal()">
+        <div class="label">OUTPUT</div>
+        <div class="printer-body"><div class="printer-slit"></div></div>
+        <div class="printer-paper" id="printerPaper"></div>
+      </div>
+
+      <div class="sc-comp" style="left:200px;top:210px;width:140px;height:70px;" id="compInt1">
+        <div class="label">INTERPRETER</div>
+        <div class="name">INT-01</div>
+        <div class="ind-row"><div class="ind" id="indInt1-0"></div><div class="ind" id="indInt1-1"></div><div class="ind" id="indInt1-2"></div></div>
+      </div>
+
+      <div class="sc-comp" style="left:200px;top:470px;width:140px;height:70px;" id="compInt2">
+        <div class="label">INTERPRETER</div>
+        <div class="name">INT-02</div>
+        <div class="ind-row"><div class="ind" id="indInt2-0"></div><div class="ind" id="indInt2-1"></div><div class="ind" id="indInt2-2"></div></div>
+      </div>
+
+      <div class="sc-comp" style="left:580px;top:340px;width:120px;height:80px;" id="compHub">
+        <div class="label">CORE HUB</div>
+        <div class="name">MAGI</div>
+        <div class="ind-row"><div class="ind" id="indHub-0"></div><div class="ind" id="indHub-1"></div><div class="ind" id="indHub-2"></div><div class="ind" id="indHub-3"></div></div>
+      </div>
+
+      <div class="sc-comp" style="left:350px;top:30px;width:110px;height:70px;" id="compCore0">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-01</div>
+        <div class="ind-row"><div class="ind" id="indCore0-0"></div><div class="ind" id="indCore0-1"></div><div class="ind" id="indCore0-2"></div><div class="ind" id="indCore0-3"></div><div class="ind" id="indCore0-4"></div><div class="ind" id="indCore0-5"></div></div>
+      </div>
+      <div class="sc-comp" style="left:560px;top:30px;width:110px;height:70px;" id="compCore1">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-02</div>
+        <div class="ind-row"><div class="ind" id="indCore1-0"></div><div class="ind" id="indCore1-1"></div><div class="ind" id="indCore1-2"></div><div class="ind" id="indCore1-3"></div><div class="ind" id="indCore1-4"></div><div class="ind" id="indCore1-5"></div></div>
+      </div>
+      <div class="sc-comp" style="left:770px;top:30px;width:110px;height:70px;" id="compCore2">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-03</div>
+        <div class="ind-row"><div class="ind" id="indCore2-0"></div><div class="ind" id="indCore2-1"></div><div class="ind" id="indCore2-2"></div><div class="ind" id="indCore2-3"></div><div class="ind" id="indCore2-4"></div><div class="ind" id="indCore2-5"></div></div>
+      </div>
+
+      <div class="sc-comp" style="left:370px;top:160px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-01</div>
+      <div class="sc-comp" style="left:580px;top:160px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-02</div>
+      <div class="sc-comp" style="left:790px;top:160px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-03</div>
+
+      <div class="sc-comp" style="left:370px;top:570px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-04</div>
+      <div class="sc-comp" style="left:580px;top:570px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-05</div>
+      <div class="sc-comp" style="left:790px;top:570px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-06</div>
+
+      <div class="sc-comp" style="left:350px;top:650px;width:110px;height:70px;" id="compCore3">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-04</div>
+        <div class="ind-row"><div class="ind" id="indCore3-0"></div><div class="ind" id="indCore3-1"></div><div class="ind" id="indCore3-2"></div><div class="ind" id="indCore3-3"></div><div class="ind" id="indCore3-4"></div><div class="ind" id="indCore3-5"></div></div>
+      </div>
+      <div class="sc-comp" style="left:560px;top:650px;width:110px;height:70px;" id="compCore4">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-05</div>
+        <div class="ind-row"><div class="ind" id="indCore4-0"></div><div class="ind" id="indCore4-1"></div><div class="ind" id="indCore4-2"></div><div class="ind" id="indCore4-3"></div><div class="ind" id="indCore4-4"></div><div class="ind" id="indCore4-5"></div></div>
+      </div>
+      <div class="sc-comp" style="left:770px;top:650px;width:110px;height:70px;" id="compCore5">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-06</div>
+        <div class="ind-row"><div class="ind" id="indCore5-0"></div><div class="ind" id="indCore5-1"></div><div class="ind" id="indCore5-2"></div><div class="ind" id="indCore5-3"></div><div class="ind" id="indCore5-4"></div><div class="ind" id="indCore5-5"></div></div>
+      </div>
+
+      <div class="sc-comp" style="left:980px;top:340px;width:140px;height:80px;" id="compMdm">
+        <div class="label">MAG. TAPE</div>
+        <div class="name">MANAGER</div>
+        <div class="ind-row"><div class="ind" id="indMdm-0"></div><div class="ind" id="indMdm-1"></div></div>
+      </div>
+
+      <div class="sc-comp reel-comp" style="left:1166px;top:210px;width:78px;height:92px;" id="compDisc0">
+        <svg viewBox="0 0 70 70" class="reel-svg" id="reelSvg0">
+          <circle cx="35" cy="35" r="33" fill="#111108" stroke="#664400" stroke-width="1.5"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#1a0d00" stroke-width="14"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#CC4400" stroke-width="14"
+                  stroke-dasharray="0 131.95" stroke-linecap="butt" id="reelFill0"
+                  transform="rotate(-90 35 35)"/>
+          <line x1="35" y1="35" x2="35" y2="7" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="59" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="11" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <circle cx="35" cy="35" r="9" fill="#0a0a0a" stroke="#FF6600" stroke-width="1.5"/>
+          <circle cx="31.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="38.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="35" cy="39.5" r="2" fill="#1a0a00"/>
+        </svg>
+        <div class="reel-name">REEL-01</div>
+        <div class="reel-pct" id="reelPct0">0%</div>
+      </div>
+      <div class="sc-comp reel-comp" style="left:1166px;top:320px;width:78px;height:92px;" id="compDisc1">
+        <svg viewBox="0 0 70 70" class="reel-svg" id="reelSvg1">
+          <circle cx="35" cy="35" r="33" fill="#111108" stroke="#664400" stroke-width="1.5"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#1a0d00" stroke-width="14"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#CC4400" stroke-width="14"
+                  stroke-dasharray="0 131.95" stroke-linecap="butt" id="reelFill1"
+                  transform="rotate(-90 35 35)"/>
+          <line x1="35" y1="35" x2="35" y2="7" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="59" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="11" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <circle cx="35" cy="35" r="9" fill="#0a0a0a" stroke="#FF6600" stroke-width="1.5"/>
+          <circle cx="31.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="38.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="35" cy="39.5" r="2" fill="#1a0a00"/>
+        </svg>
+        <div class="reel-name">REEL-02</div>
+        <div class="reel-pct" id="reelPct1">0%</div>
+      </div>
+      <div class="sc-comp reel-comp" style="left:1166px;top:430px;width:78px;height:92px;" id="compDisc2">
+        <svg viewBox="0 0 70 70" class="reel-svg" id="reelSvg2">
+          <circle cx="35" cy="35" r="33" fill="#111108" stroke="#664400" stroke-width="1.5"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#1a0d00" stroke-width="14"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#CC4400" stroke-width="14"
+                  stroke-dasharray="0 131.95" stroke-linecap="butt" id="reelFill2"
+                  transform="rotate(-90 35 35)"/>
+          <line x1="35" y1="35" x2="35" y2="7" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="59" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="11" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <circle cx="35" cy="35" r="9" fill="#0a0a0a" stroke="#FF6600" stroke-width="1.5"/>
+          <circle cx="31.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="38.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="35" cy="39.5" r="2" fill="#1a0a00"/>
+        </svg>
+        <div class="reel-name">REEL-03</div>
+        <div class="reel-pct" id="reelPct2">0%</div>
+      </div>
+    </div>
+
+    <div class="sc-footer">
+      <span class="live" id="scFootLive">&#9679; LIVE</span>
+      <span id="scFootTask">TASKS: 0 | QUEUE: IDLE</span>
+      <span>GEHIRN SYS // AUTHORIZED</span>
+    </div>
+  </div>
+</section>
+
+<section class="system" id="sys-timer">
+  <div class="nge-root">
+    <div class="scanlines"></div>
+    <div class="nge-header">
+      <div class="nge-logo">NERV // MAGI-03 // TIMER SUBSYSTEM</div>
+      <div class="nge-status" id="statusTxt">STANDBY</div>
+    </div>
+
+    <div class="nge-body">
+      <div class="nge-main">
+        <div class="nge-label">ESTIMATED OPERATIONAL TIME</div>
+        <canvas id="segCanvas" class="seg-canvas" width="380" height="100"></canvas>
+
+        <div class="nge-progress-wrap">
+          <div class="nge-progress-track">
+            <div class="nge-progress-fill" id="progFill" style="width:100%"></div>
+          </div>
+          <div class="nge-tick-row">
+            <span class="nge-tick">0%</span><span class="nge-tick">25%</span><span class="nge-tick">50%</span><span class="nge-tick">75%</span><span class="nge-tick">100%</span>
+          </div>
+        </div>
+
+        <div class="nge-label">PRESET INTERVALS</div>
+        <div class="nge-preset-row">
+          <button class="nge-btn" onclick="setPreset(60)">01:00</button>
+          <button class="nge-btn" onclick="setPreset(180)">03:00</button>
+          <button class="nge-btn" onclick="setPreset(300)">05:00</button>
+          <button class="nge-btn" onclick="setPreset(600)">10:00</button>
+        </div>
+
+        <div class="nge-label">MANUAL INPUT</div>
+        <div class="nge-custom-row">
+          <input class="nge-input" id="inMin" type="number" min="0" max="99" value="0" />
+          <span class="nge-sep">:</span>
+          <input class="nge-input" id="inSec" type="number" min="0" max="59" value="0" />
+          <button class="nge-btn" style="margin-left:4px" onclick="setCustom()">SET</button>
+        </div>
+
+        <div class="nge-pwr-row">
+          <button class="nge-pwr-btn internal" id="btnInternal" onclick="switchInternal()">INTERNAL POWER</button>
+          <button class="nge-pwr-btn external on" id="btnExternal" onclick="switchExternal()">EXTERNAL POWER</button>
+        </div>
+        <div class="nge-recharge-row" id="rechargeRow">
+          <button class="nge-pwr-btn recharge" onclick="startRecharge()">RECHARGE</button>
+        </div>
+      </div>
+
+      <div class="nge-sidebar">
+        <div class="nge-panel">
+          <div class="nge-panel-title">MAGI SYNC DATA</div>
+          <div class="nge-data-row"><span class="nge-data-key">TOTAL</span><span class="nge-data-val" id="sdTotal">00:00</span></div>
+          <div class="nge-data-row"><span class="nge-data-key">ELAPSED</span><span class="nge-data-val hi" id="sdElapsed">00:00</span></div>
+          <div class="nge-data-row"><span class="nge-data-key">REMAIN</span><span class="nge-data-val" id="sdRemain">00:00</span></div>
+        </div>
+        <div class="nge-panel">
+          <div class="nge-panel-title">POWER OUTPUT</div>
+          <div class="nge-data-row"><span class="nge-data-key">DRAW</span><span class="nge-data-val" id="pwrDraw">0 W</span></div>
+          <div class="nge-data-row"><span class="nge-data-key">CAPACITY</span><span class="nge-data-val">3,000 kWh</span></div>
+          <div class="nge-data-row"><span class="nge-data-key">STATE</span><span class="nge-data-val" id="pwrState">EXTERNAL</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nge-footer">
+      <span class="nge-foot-item live" id="clkTxt">CLOCK: --:--:--</span>
+      <span class="nge-foot-item">GEHIRN SYS // AUTHORIZED</span>
+      <span class="nge-foot-item" id="frameTxt">FRAME 000000</span>
+    </div>
+  </div>
+</section>
+
+<div class="modal-overlay" id="inputModal">
+  <div class="modal-box">
+    <div class="modal-title">DIGITAL INPUT // SELECT MODE</div>
+    <div class="modal-close" onclick="closeModal('inputModal')">&times;</div>
+    <div class="modal-btn-row">
+      <button class="sc-btn" id="inputSingleBtn" onclick="chooseSingle()">SINGLE TASK</button>
+      <button class="sc-btn" id="continuousBtn" onclick="toggleContinuous()">CONTINUOUS</button>
+      <button class="sc-btn" id="inputQuestionBtn" onclick="chooseQuestion()">QUESTION</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="questionModal">
+  <div class="modal-box">
+    <div class="modal-title">QUERY ENTRY</div>
+    <div class="modal-close" onclick="closeModal('questionModal')">&times;</div>
+    <input class="sc-input" id="questionInput" placeholder="ENTER QUERY..." autocomplete="off" />
+    <button class="sc-btn" onclick="submitQuestion()">TRANSMIT QUERY</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="paperModal">
+  <div class="modal-box" style="width:540px;">
+    <div class="modal-title">PAPER OUTPUT LOG</div>
+    <div class="modal-close" onclick="closeModal('paperModal')">&times;</div>
+    <div class="paper-output" id="paperOutput">
+      <div style="color:var(--nge-muted);font-size:10px;text-align:center;padding:30px 0;">[ NO ENTRIES ]</div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="sc-btn danger" onclick="clearPaper()">CLEAR LOG</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.system;
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.system').forEach(s => s.classList.toggle('active', s.id === 'sys-' + target));
+  });
+});
+
+const cores = [0,1,2,3,4,5].map(i => ({ id: i, busy: false }));
+let taskIdCounter = 0;
+let paperLog = [];
+let continuousRunning = false;
+let continuousLoopActive = false;
+
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+function flashPath(id, color, duration) {
+  duration = duration || 800;
+  const p = document.getElementById(id);
+  if (!p) return;
+  p.classList.remove('flash-green', 'flash-red');
+  void p.offsetWidth;
+  p.classList.add('flash-' + color);
+  setTimeout(() => p.classList.remove('flash-' + color), duration);
+}
+
+function setIndicators(prefix, on, red) {
+  const inds = document.querySelectorAll('[id^="' + prefix + '-"]');
+  inds.forEach(el => {
+    el.classList.toggle('on', on);
+    el.classList.toggle('red', !!red);
+  });
+}
+
+function setCompActive(id, on) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('active', on);
+}
+function setCompAlert(id, on) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('alert', on);
+}
+
+function updateStatus(text, cls) {
+  const s = document.getElementById('scStatus');
+  s.textContent = text;
+  s.className = 'sc-status' + (cls ? ' ' + cls : '');
+}
+
+function updateFooter() {
+  const anyBusy = cores.some(c => c.busy);
+  document.getElementById('scFootTask').textContent =
+    'TASKS: ' + taskIdCounter + ' | QUEUE: ' + (continuousRunning ? 'CONTINUOUS' : (anyBusy ? 'ACTIVE' : 'IDLE'));
+}
+
+function ts() {
+  const d = new Date();
+  return String(d.getHours()).padStart(2,'0') + ':' +
+         String(d.getMinutes()).padStart(2,'0') + ':' +
+         String(d.getSeconds()).padStart(2,'0');
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openInputModal() {
+  const singleBtn = document.getElementById('inputSingleBtn');
+  const questionBtn = document.getElementById('inputQuestionBtn');
+  const locked = continuousRunning;
+  if (singleBtn) { singleBtn.disabled = locked; singleBtn.style.opacity = locked ? '0.3' : ''; singleBtn.style.cursor = locked ? 'not-allowed' : ''; }
+  if (questionBtn) { questionBtn.disabled = locked; questionBtn.style.opacity = locked ? '0.3' : ''; questionBtn.style.cursor = locked ? 'not-allowed' : ''; }
+  openModal('inputModal');
+}
+function openPaperModal() { renderPaper(); openModal('paperModal'); }
+
+const reelData = [0, 0, 0];
+const REEL_CIRC = 2 * Math.PI * 21;
+
+function updateReel(discId) {
+  const pct = reelData[discId];
+  const pctEl = document.getElementById('reelPct' + discId);
+  const fillEl = document.getElementById('reelFill' + discId);
+  const svgEl = document.getElementById('reelSvg' + discId);
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (fillEl) {
+    const filled = REEL_CIRC * (pct / 100);
+    fillEl.setAttribute('stroke-dasharray', filled.toFixed(2) + ' ' + (REEL_CIRC - filled).toFixed(2));
+  }
+  if (svgEl) {
+    if (pct > 0) {
+      svgEl.classList.add('spinning');
+      const spd = pct <= 25 ? 4 : pct <= 50 ? 2.5 : pct <= 75 ? 1.5 : 0.8;
+      svgEl.style.animationDuration = spd + 's';
+    } else {
+      svgEl.classList.remove('spinning');
+      svgEl.style.animationDuration = '';
+    }
+  }
+}
+
+function setIdleLight(coreId, on) {
+  const el = document.getElementById('indCore' + coreId + '-0');
+  if (el) el.classList.toggle('idle-blink', on);
+}
+
+function setIndPartial(coreId, indices, on, red) {
+  indices.forEach(i => {
+    const el = document.getElementById('indCore' + coreId + '-' + i);
+    if (!el) return;
+    el.classList.toggle('on', on);
+    el.classList.toggle('red', !!red);
+  });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[<>&"']/g, c => ({ '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+function addPaperEntry(title, body) {
+  paperLog.unshift({ ts: ts(), title: title, body: body });
+  if (paperLog.length > 200) paperLog = paperLog.slice(0, 200);
+  const p = document.getElementById('compPrinter');
+  p.classList.add('printing');
+  setTimeout(() => p.classList.remove('printing'), 900);
+}
+
+function renderPaper() {
+  const out = document.getElementById('paperOutput');
+  if (paperLog.length === 0) {
+    out.innerHTML = '<div style="color:var(--nge-muted);font-size:10px;text-align:center;padding:30px 0;">[ NO ENTRIES ]</div>';
+    return;
+  }
+  out.innerHTML = paperLog.map(e =>
+    '<div class="paper-entry">' +
+      '<div><span class="ts">[' + e.ts + ']</span><span class="title">' + escapeHtml(e.title) + '</span></div>' +
+      '<div class="body">' + escapeHtml(e.body) + '</div>' +
+    '</div>'
+  ).join('');
+}
+
+function clearPaper() { paperLog = []; renderPaper(); }
+
+async function chooseSingle() {
+  closeModal('inputModal');
+  runSingleTask();
+}
+
+function toggleContinuous() {
+  closeModal('inputModal');
+  if (continuousRunning) {
+    continuousRunning = false;
+    document.getElementById('continuousBtn').classList.remove('active');
+  } else {
+    continuousRunning = true;
+    document.getElementById('continuousBtn').classList.add('active');
+    runContinuous();
+  }
+}
+
+async function runContinuous() {
+  if (continuousLoopActive) return;
+  continuousLoopActive = true;
+  while (continuousRunning) {
+    await runSingleTask();
+    if (!continuousRunning) break;
+    await wait(rand(300, 900));
+  }
+  continuousLoopActive = false;
+}
+
+function chooseQuestion() {
+  closeModal('inputModal');
+  openModal('questionModal');
+  setTimeout(() => document.getElementById('questionInput').focus(), 60);
+}
+
+function submitQuestion() {
+  const q = document.getElementById('questionInput').value.trim();
+  if (!q) return;
+  document.getElementById('questionInput').value = '';
+  closeModal('questionModal');
+  runQuestionTask(q);
+}
+
+document.getElementById('questionInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitQuestion();
+});
+
+async function runSingleTask() {
+  const size = rand(8, 100);
+  const taskId = ++taskIdCounter;
+  updateStatus('TASK-' + String(taskId).padStart(4,'0') + ' SIZE:' + String(size).padStart(3,'0'), 'active');
+  updateFooter();
+
+  const interpTime = 400 + size * 8;
+  const coreTime = 600 + size * 22;
+
+  const inInt = pick([1, 2]);
+
+  flashPath('p-di-int' + inInt, 'green');
+  await wait(500);
+
+  setIndicators('indInt' + inInt, true);
+  setCompActive('compInt' + inInt, true);
+  await wait(interpTime);
+  setIndicators('indInt' + inInt, false);
+  setCompActive('compInt' + inInt, false);
+
+  flashPath('p-int' + inInt + '-hub', 'green');
+  await wait(450);
+
+  setIndicators('indHub', true);
+  setCompActive('compHub', true);
+  await wait(300);
+  setIndicators('indHub', false);
+  setCompActive('compHub', false);
+
+  let coreId = cores.findIndex(c => !c.busy);
+  if (coreId === -1) coreId = rand(0, 5);
+  cores[coreId].busy = true;
+  setIdleLight(coreId, false);
+  updateFooter();
+
+  flashPath('p-hub-socket' + coreId, 'green');
+  await wait(350);
+  flashPath('p-socket' + coreId + '-core' + coreId, 'green');
+  await wait(300);
+
+  setIndicators('indCore' + coreId, true);
+  setCompActive('compCore' + coreId, true);
+
+  const discActivityCount = rand(0, 3);
+  for (let i = 0; i < discActivityCount; i++) {
+    setTimeout(() => { if (cores[coreId].busy) doDiscAccess(coreId); }, rand(200, Math.max(300, coreTime - 300)));
+  }
+
+  await wait(coreTime);
+  setIndicators('indCore' + coreId, false);
+  setCompActive('compCore' + coreId, false);
+
+  flashPath('p-socket' + coreId + '-core' + coreId, 'green');
+  await wait(300);
+  flashPath('p-hub-socket' + coreId, 'green');
+  await wait(350);
+  cores[coreId].busy = false;
+  setIdleLight(coreId, true);
+  updateFooter();
+
+  const outInt = 3 - inInt;
+  flashPath('p-int' + outInt + '-hub', 'green');
+  await wait(450);
+
+  setIndicators('indInt' + outInt, true);
+  setCompActive('compInt' + outInt, true);
+  await wait(interpTime);
+  setIndicators('indInt' + outInt, false);
+  setCompActive('compInt' + outInt, false);
+
+  flashPath('p-int' + outInt + '-paper', 'green');
+  await wait(400);
+
+  const outLen = Math.max(16, size * 2);
+  let bin = '';
+  for (let i = 0; i < outLen; i++) bin += Math.random() < 0.5 ? '0' : '1';
+
+  addPaperEntry(
+    'TASK-' + String(taskId).padStart(4,'0') + ' // SIZE:' + String(size).padStart(3,'0') + ' // CORE-' + String(coreId+1).padStart(2,'0'),
+    bin
+  );
+
+  if (!cores.some(c => c.busy) && !continuousRunning) updateStatus('STANDBY');
+  else if (continuousRunning) updateStatus('CONTINUOUS', 'active');
+  updateFooter();
+}
+
+async function runQuestionTask(question) {
+  const taskId = ++taskIdCounter;
+  updateStatus('QUERY-' + String(taskId).padStart(4,'0'), 'active');
+  updateFooter();
+
+  flashPath('p-di-int1', 'green');
+  flashPath('p-di-int2', 'green');
+  await wait(400);
+  setIndicators('indInt1', true); setCompActive('compInt1', true);
+  setIndicators('indInt2', true); setCompActive('compInt2', true);
+  await wait(900);
+  setIndicators('indInt1', false); setCompActive('compInt1', false);
+  setIndicators('indInt2', false); setCompActive('compInt2', false);
+
+  flashPath('p-int1-hub', 'green');
+  flashPath('p-int2-hub', 'green');
+  await wait(500);
+  setIndicators('indHub', true); setCompActive('compHub', true);
+  await wait(500);
+  setIndicators('indHub', false); setCompActive('compHub', false);
+
+  const options = ['YES', 'NO', 'MAYBE', 'WHY?'];
+  const responses = [];
+  for (let i = 0; i < 6; i++) {
+    cores[i].busy = true;
+    setIdleLight(i, false);
+    flashPath('p-hub-socket' + i, 'green');
+    flashPath('p-socket' + i + '-core' + i, 'green');
+  }
+  updateFooter();
+  await wait(350);
+  for (let i = 0; i < 6; i++) {
+    setIndicators('indCore' + i, true);
+    setCompActive('compCore' + i, true);
+  }
+  await wait(1500 + rand(0, 500));
+
+  for (let i = 0; i < 6; i++) {
+    responses.push(pick(options));
+    setIndicators('indCore' + i, false);
+    setCompActive('compCore' + i, false);
+    flashPath('p-socket' + i + '-core' + i, 'green');
+    flashPath('p-hub-socket' + i, 'green');
+    cores[i].busy = false;
+    setIdleLight(i, true);
+  }
+  updateFooter();
+  await wait(600);
+
+  flashPath('p-int1-hub', 'green');
+  flashPath('p-int2-hub', 'green');
+  setIndicators('indInt1', true); setCompActive('compInt1', true);
+  setIndicators('indInt2', true); setCompActive('compInt2', true);
+  await wait(800);
+  setIndicators('indInt1', false); setCompActive('compInt1', false);
+  setIndicators('indInt2', false); setCompActive('compInt2', false);
+
+  flashPath('p-int1-paper', 'green');
+  flashPath('p-int2-paper', 'green');
+  await wait(400);
+
+  const body = 'Q: ' + question + '\n' +
+    responses.map((r, i) => '  CORE-' + String(i+1).padStart(2,'0') + ' > ' + r).join('\n');
+  addPaperEntry('QUERY-' + String(taskId).padStart(4,'0'), body);
+
+  if (!cores.some(c => c.busy) && !continuousRunning) updateStatus('STANDBY');
+  updateFooter();
+}
+
+function doDiscAccess(coreId) {
+  if (!cores[coreId] || !cores[coreId].busy) return;
+  const discId = rand(0, 2);
+  const uploading = Math.random() < 0.65;
+  reelData[discId] = uploading
+    ? Math.min(100, reelData[discId] + rand(12, 28))
+    : Math.max(0, reelData[discId] - rand(1, 4));
+  updateReel(discId);
+  flashPath('p-socket' + coreId + '-core' + coreId, 'green', 500);
+  flashPath('p-hub-socket' + coreId, 'green', 500);
+  setTimeout(() => {
+    flashPath('p-hub-mdm', 'green', 500);
+    flashPath('p-mdm-disc' + discId, 'green', 500);
+    setCompActive('compMdm', true);
+    setCompActive('compDisc' + discId, true);
+    setIndicators('indMdm', true);
+    setTimeout(() => {
+      setCompActive('compMdm', false);
+      setCompActive('compDisc' + discId, false);
+      setIndicators('indMdm', false);
+    }, 600);
+  }, 150);
+}
+
+async function doChat(a, b) {
+  setIdleLight(a, false); setIdleLight(b, false);
+  flashPath('p-socket' + a + '-core' + a, 'green', 600);
+  flashPath('p-hub-socket' + a, 'green', 600);
+  await wait(180);
+  flashPath('p-hub-socket' + b, 'green', 600);
+  flashPath('p-socket' + b + '-core' + b, 'green', 600);
+  setIndPartial(a, [0,1,2], true, false);
+  setIndPartial(b, [0,1,2], true, false);
+  setCompActive('compCore' + a, true);
+  setCompActive('compCore' + b, true);
+  await wait(700);
+  setIndPartial(a, [0,1,2], false);
+  setIndPartial(b, [0,1,2], false);
+  setCompActive('compCore' + a, false);
+  setCompActive('compCore' + b, false);
+  if (!cores[a].busy) setIdleLight(a, true);
+  if (!cores[b].busy) setIdleLight(b, true);
+}
+
+async function doHousekeepDelete(coreId) {
+  const discId = rand(0, 2);
+  reelData[discId] = Math.max(0, reelData[discId] - rand(2, 6));
+  updateReel(discId);
+  setIdleLight(coreId, false);
+  flashPath('p-socket' + coreId + '-core' + coreId, 'red', 700);
+  flashPath('p-hub-socket' + coreId, 'red', 700);
+  setIndPartial(coreId, [3,4,5], true, true);
+  setCompAlert('compCore' + coreId, true);
+  await wait(200);
+  flashPath('p-hub-mdm', 'red', 700);
+  flashPath('p-mdm-disc' + discId, 'red', 700);
+  setCompAlert('compMdm', true);
+  setCompAlert('compDisc' + discId, true);
+  setIndicators('indMdm', true, true);
+  await wait(700);
+  setIndPartial(coreId, [3,4,5], false);
+  setCompAlert('compCore' + coreId, false);
+  setCompAlert('compMdm', false);
+  setCompAlert('compDisc' + discId, false);
+  setIndicators('indMdm', false);
+  if (!cores[coreId].busy) setIdleLight(coreId, true);
+}
+
+setInterval(() => {
+  const idle = cores.filter(c => !c.busy);
+  if (idle.length < 2) return;
+  if (Math.random() < 0.45) {
+    const a = pick(idle);
+    const rest = idle.filter(c => c.id !== a.id);
+    const b = pick(rest);
+    if (a && b) doChat(a.id, b.id);
+  }
+}, 2600);
+
+setInterval(() => {
+  const idle = cores.filter(c => !c.busy);
+  if (idle.length === 0) return;
+  if (Math.random() < 0.3) {
+    const c = pick(idle);
+    doHousekeepDelete(c.id);
+  }
+}, 3800);
+
+updateStatus('STANDBY');
+updateFooter();
+cores.forEach(c => setIdleLight(c.id, true));
+
+/* ============ TIMER CODE ============ */
+let totalCs = 0, remainingCs = 0, tmrState = 'external';
+let tInterval = null, rechargeAnim = null, frame = 0, tmrElapsedAtPause = 0;
+
+const SEG_MAP = [
+  [1,1,1,1,1,1,0],[0,1,1,0,0,0,0],[1,1,0,1,1,0,1],[1,1,1,1,0,0,1],
+  [0,1,1,0,0,1,1],[1,0,1,1,0,1,1],[1,0,1,1,1,1,1],[1,1,1,0,0,0,0],
+  [1,1,1,1,1,1,1],[1,1,1,1,0,1,1]
+];
+
+function drawSeg(ctx, x, y, seg, on, bright, dim) {
+  const W = 42, H = 75, T = 7, m = T * 0.75;
+  ctx.lineCap = 'round';
+  ctx.lineWidth = T;
+  ctx.strokeStyle = on ? bright : dim;
+  ctx.beginPath();
+  if      (seg === 'a') { ctx.moveTo(x+m, y+T/2);     ctx.lineTo(x+W-m, y+T/2); }
+  else if (seg === 'b') { ctx.moveTo(x+W-T/2, y+m);   ctx.lineTo(x+W-T/2, y+H/2-m); }
+  else if (seg === 'c') { ctx.moveTo(x+W-T/2, y+H/2+m); ctx.lineTo(x+W-T/2, y+H-m); }
+  else if (seg === 'd') { ctx.moveTo(x+m, y+H-T/2);   ctx.lineTo(x+W-m, y+H-T/2); }
+  else if (seg === 'e') { ctx.moveTo(x+T/2, y+H/2+m); ctx.lineTo(x+T/2, y+H-m); }
+  else if (seg === 'f') { ctx.moveTo(x+T/2, y+m);     ctx.lineTo(x+T/2, y+H/2-m); }
+  else if (seg === 'g') { ctx.moveTo(x+m, y+H/2);     ctx.lineTo(x+W-m, y+H/2); }
+  ctx.stroke();
+}
+
+function drawDigit(ctx, x, y, n, bright, dim) {
+  const s = SEG_MAP[Math.min(9, Math.max(0, n))];
+  ['a','b','c','d','e','f','g'].forEach((seg, i) => drawSeg(ctx, x, y, seg, s[i], bright, dim));
+}
+
+function drawColon(ctx, x, y, on, bright, dim) {
+  ctx.fillStyle = on ? bright : dim;
+  ctx.beginPath(); ctx.arc(x+6, y+22, 4, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x+6, y+53, 4, 0, Math.PI*2); ctx.fill();
+}
+
+function drawDot(ctx, x, y, bright) {
+  ctx.fillStyle = bright;
+  ctx.beginPath(); ctx.arc(x+5, y+69, 4, 0, Math.PI*2); ctx.fill();
+}
+
+function renderSeg() {
+  const canvas = document.getElementById('segCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0, 0, W, H);
+
+  const finished = remainingCs <= 0 && totalCs > 0;
+  const bright = finished ? '#FF2200' : tmrState === 'internal' ? '#00FF66' : '#FF6600';
+  const dim    = finished ? '#33080044' : tmrState === 'internal' ? '#00332244' : '#2a100044';
+
+  ctx.shadowBlur = 14;
+  ctx.shadowColor = bright;
+
+  const safe = Math.max(0, remainingCs);
+  const totalSec = Math.floor(safe / 100);
+  const mm = Math.floor(totalSec / 60);
+  const ss = totalSec % 60;
+  const cc = safe % 100;
+  const d = [Math.floor(mm/10), mm%10, Math.floor(ss/10), ss%10, Math.floor(cc/10), cc%10];
+
+  const DW=42, GAP=5, CW=14, DOW=12;
+  const contentW = DW*6 + GAP*7 + CW + DOW;
+  let x = Math.floor((W - contentW) / 2);
+  const y = Math.floor((H - 75) / 2);
+
+  const colonOn = tmrState === 'internal' || (finished && Math.floor(Date.now()/500)%2===0) || tmrState === 'recharging';
+
+  drawDigit(ctx, x, y, d[0], bright, dim); x += DW + GAP;
+  drawDigit(ctx, x, y, d[1], bright, dim); x += DW + GAP;
+  drawColon(ctx, x, y, colonOn, bright, dim); x += CW + GAP;
+  drawDigit(ctx, x, y, d[2], bright, dim); x += DW + GAP;
+  drawDigit(ctx, x, y, d[3], bright, dim); x += DW + GAP;
+  drawDot(ctx, x, y, dim); x += DOW + GAP;
+  drawDigit(ctx, x, y, d[4], bright, dim); x += DW + GAP;
+  drawDigit(ctx, x, y, d[5], bright, dim);
+
+  ctx.shadowBlur = 0;
+}
+
+function fmtCs(cs) {
+  const s = Math.floor(Math.max(0, cs) / 100);
+  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
+}
+function fmtFull(d) {
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+}
+function updateClock() {
+  document.getElementById('clkTxt').textContent = 'CLOCK: ' + fmtFull(new Date());
+}
+setInterval(updateClock, 1000); updateClock();
+
+function playChime() {
+  try {
+    const ac = new (window.AudioContext || window.webkitAudioContext)();
+    [[880,0,0.22],[1320,0.15,0.2],[1760,0.28,0.28]].forEach(([freq, delay, dur]) => {
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.connect(g); g.connect(ac.destination);
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq, ac.currentTime + delay);
+      o.frequency.exponentialRampToValueAtTime(freq * 0.88, ac.currentTime + delay + dur);
+      g.gain.setValueAtTime(0, ac.currentTime + delay);
+      g.gain.linearRampToValueAtTime(0.2, ac.currentTime + delay + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + delay + dur);
+      o.start(ac.currentTime + delay);
+      o.stop(ac.currentTime + delay + dur + 0.05);
+    });
+  } catch(e) {}
+}
+
+function tmrRender() {
+  const prog = document.getElementById('progFill');
+  const status = document.getElementById('statusTxt');
+  const finished = remainingCs <= 0 && totalCs > 0;
+
+  const pct = totalCs > 0 ? (remainingCs / totalCs) * 100 : 100;
+  prog.style.width = Math.max(0, pct) + '%';
+  prog.className = 'nge-progress-fill' +
+    (finished ? ' finished' : tmrState === 'internal' ? ' running' : tmrState === 'recharging' ? ' running' : '');
+
+  if (finished) {
+    status.textContent = '!! POWER DEPLETED !!'; status.className = 'nge-status alert';
+  } else if (tmrState === 'recharging') {
+    status.textContent = 'RECHARGING'; status.className = 'nge-status alert';
+  } else if (tmrState === 'internal') {
+    status.textContent = 'INTERNAL POWER'; status.className = 'nge-status';
+  } else {
+    status.textContent = totalCs > 0 ? 'EXTERNAL POWER' : 'STANDBY'; status.className = 'nge-status';
+  }
+
+  const btnI = document.getElementById('btnInternal');
+  const btnE = document.getElementById('btnExternal');
+  const rRow = document.getElementById('rechargeRow');
+  if (btnI) btnI.classList.toggle('on', tmrState === 'internal');
+  if (btnE) btnE.classList.toggle('on', tmrState !== 'internal');
+  if (rRow) rRow.classList.toggle('visible', tmrState === 'external' && totalCs > 0 && remainingCs < totalCs);
+
+  const elapsedCs = totalCs - remainingCs;
+  document.getElementById('sdTotal').textContent = fmtCs(totalCs);
+  document.getElementById('sdElapsed').textContent = fmtCs(elapsedCs);
+  document.getElementById('sdRemain').textContent = fmtCs(Math.max(0, remainingCs));
+
+
+  const pwrDraw = document.getElementById('pwrDraw');
+  const pwrState = document.getElementById('pwrState');
+  if (pwrDraw && pwrState) {
+    if (tmrState === 'internal' && totalCs > 0) {
+      const totalHr = totalCs / 100 / 3600;
+      const kw = 3000 / totalHr;
+      pwrDraw.textContent = kw >= 1000 ? (kw/1000).toFixed(2)+' MW' : kw.toFixed(1)+' kW';
+      pwrDraw.className = 'nge-data-val hi';
+      pwrState.textContent = 'INTERNAL';
+    } else if (tmrState === 'recharging' && tmrElapsedAtPause > 0) {
+      const pctGone = (totalCs - remainingCs) / totalCs;
+      const kwhSpent = pctGone * 3000;
+      const elapsedHr = tmrElapsedAtPause / 100 / 3600;
+      const ckw = kwhSpent / elapsedHr;
+      pwrDraw.textContent = (ckw >= 1000 ? '+' + (ckw/1000).toFixed(2)+' MW' : '+' + ckw.toFixed(1)+' kW');
+      pwrDraw.className = 'nge-data-val warn';
+      pwrState.textContent = 'RECHARGING';
+    } else {
+      pwrDraw.textContent = '0 W';
+      pwrDraw.className = 'nge-data-val';
+      pwrState.textContent = finished ? 'DEPLETED' : 'EXTERNAL';
+    }
+  }
+
+  frame++;
+  document.getElementById('frameTxt').textContent = 'FRAME ' + String(frame).padStart(6,'0');
+  renderSeg();
+}
+
+function setPreset(s) {
+  if (tmrState !== 'external') return;
+  totalCs = s * 100; remainingCs = totalCs; tmrElapsedAtPause = 0; tmrRender();
+}
+
+function setCustom() {
+  if (tmrState !== 'external') return;
+  const m = parseInt(document.getElementById('inMin').value) || 0;
+  const s = parseInt(document.getElementById('inSec').value) || 0;
+  totalCs = (m * 60 + s) * 100; remainingCs = totalCs; lapCount = 0; tmrElapsedAtPause = 0;
+  document.getElementById('lapList').innerHTML = ''; tmrRender();
+}
+
+function switchInternal() {
+  if (tmrState === 'recharging' || !totalCs) return;
+  if (remainingCs <= 0) { remainingCs = totalCs; }
+  if (tmrState === 'internal') return;
+  tmrState = 'internal';
+  playChime();
+  clearInterval(tInterval);
+  tInterval = setInterval(() => {
+    remainingCs--;
+    if (remainingCs <= 0) {
+      remainingCs = 0;
+      tmrState = 'external';
+      tmrElapsedAtPause = totalCs;
+      clearInterval(tInterval); tInterval = null;
+    }
+    tmrRender();
+  }, 10);
+  tmrRender();
+}
+
+function switchExternal() {
+  if (tmrState === 'recharging' || tmrState === 'external') return;
+  tmrState = 'external';
+  tmrElapsedAtPause = totalCs - remainingCs;
+  clearInterval(tInterval); tInterval = null;
+  tmrRender();
+}
+
+function startRecharge() {
+  if (tmrState !== 'external' || remainingCs >= totalCs || !totalCs) return;
+  tmrElapsedAtPause = totalCs - remainingCs;
+  tmrState = 'recharging';
+  const startCs = remainingCs;
+  const delta = totalCs - startCs;
+  const t0 = performance.now();
+  const DURATION = 3500;
+  clearInterval(rechargeAnim);
+  rechargeAnim = setInterval(() => {
+    const prog = Math.min(1, (performance.now() - t0) / DURATION);
+    remainingCs = Math.round(startCs + delta * prog);
+    tmrRender();
+    if (prog >= 1) {
+      remainingCs = totalCs;
+      tmrElapsedAtPause = 0;
+      tmrState = 'external';
+      clearInterval(rechargeAnim); rechargeAnim = null;
+      tmrRender();
+    }
+  }, 16);
+  tmrRender();
+}
+
+
+setInterval(renderSeg, 33);
+tmrRender();
+</script>
+</body>
+</html>

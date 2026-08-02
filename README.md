@@ -1,3 +1,4 @@
+(This read me is written by Claude. I am not going to remove it because I can't figure out how to delete files on GitHub)
 # NERV MAGI Systems
 
 An Evangelion-flavoured console PWA with two subsystems:

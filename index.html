@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>NERV MAGI SYSTEMS</title>
+
+<meta name="description" content="NERV MAGI Systems console — supercomputer core array simulation and timer subsystem.">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="color-scheme" content="dark">
+
+<!-- PWA / iOS home screen -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MAGI">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<nav class="main-nav">
+  <div class="logo">NERV // MAGI SYSTEMS CONSOLE</div>
+  <button class="nav-btn active" data-system="sc">SUPERCOMPUTER</button>
+  <button class="nav-btn" data-system="timer">TIMER</button>
+  <button class="install-btn" id="installBtn" type="button">INSTALL</button>
+</nav>
+
+<section class="system active" id="sys-sc">
+  <div class="sc-root">
+    <div class="scanlines"></div>
+    <div class="sc-header">
+      <div class="sc-logo">NERV // MAGI SUPERCOMPUTER // CORE ARRAY</div>
+      <div class="sc-status" id="scStatus">STANDBY</div>
+    </div>
+
+    <div class="sc-scale" id="scScale">
+    <div class="sc-stage" id="scStage">
+      <svg class="sc-svg" viewBox="0 0 1280 720" preserveAspectRatio="none">
+        <path id="p-di-int1" d="M 150 270 L 180 270 L 180 240 L 200 240" />
+        <path id="p-di-int2" d="M 150 300 L 180 300 L 180 510 L 200 510" />
+        <path id="p-int1-paper" d="M 320 280 L 320 395 L 150 395 L 150 410" />
+        <path id="p-int2-paper" d="M 200 490 L 150 490" />
+        <path id="p-int1-hub" d="M 340 245 L 470 245 L 470 370 L 580 370" />
+        <path id="p-int2-hub" d="M 340 505 L 470 505 L 470 390 L 580 390" />
+        <path id="p-hub-socket0" d="M 605 340 L 605 250 L 405 250 L 405 160" />
+        <path id="p-hub-socket1" d="M 640 340 L 640 160" />
+        <path id="p-hub-socket2" d="M 675 340 L 675 250 L 825 250 L 825 160" />
+        <path id="p-hub-socket3" d="M 605 420 L 605 535 L 405 535 L 405 570" />
+        <path id="p-hub-socket4" d="M 640 420 L 640 570" />
+        <path id="p-hub-socket5" d="M 675 420 L 675 535 L 825 535 L 825 570" />
+        <path id="p-socket0-core0" d="M 405 160 L 405 100" />
+        <path id="p-socket1-core1" d="M 615 160 L 615 100" />
+        <path id="p-socket2-core2" d="M 825 160 L 825 100" />
+        <path id="p-socket3-core3" d="M 405 600 L 405 650" />
+        <path id="p-socket4-core4" d="M 615 600 L 615 650" />
+        <path id="p-socket5-core5" d="M 825 600 L 825 650" />
+        <path id="p-hub-mdm" d="M 700 380 L 980 380" />
+        <path id="p-mdm-disc0" d="M 1120 365 L 1145 365 L 1145 260 L 1170 260" />
+        <path id="p-mdm-disc1" d="M 1120 380 L 1170 380" />
+        <path id="p-mdm-disc2" d="M 1120 395 L 1145 395 L 1145 500 L 1170 500" />
+      </svg>
+
+      <div class="sc-comp sc-kbd" style="left:30px;top:250px;width:120px;height:70px;" onclick="openInputModal()">
+        <div class="label">DIGITAL INPUT</div>
+        <div class="kbd-grid">
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+          <div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div><div class="kbd-key"></div>
+        </div>
+      </div>
+
+      <div class="sc-comp sc-printer" style="left:30px;top:410px;width:120px;height:90px;" id="compPrinter" onclick="openPaperModal()">
+        <div class="label">OUTPUT</div>
+        <div class="printer-body"><div class="printer-slit"></div></div>
+        <div class="printer-paper" id="printerPaper"></div>
+      </div>
+
+      <div class="sc-comp" style="left:200px;top:210px;width:140px;height:70px;" id="compInt1">
+        <div class="label">INTERPRETER</div>
+        <div class="name">INT-01</div>
+        <div class="ind-row"><div class="ind" id="indInt1-0"></div><div class="ind" id="indInt1-1"></div><div class="ind" id="indInt1-2"></div></div>
+      </div>
+
+      <div class="sc-comp" style="left:200px;top:470px;width:140px;height:70px;" id="compInt2">
+        <div class="label">INTERPRETER</div>
+        <div class="name">INT-02</div>
+        <div class="ind-row"><div class="ind" id="indInt2-0"></div><div class="ind" id="indInt2-1"></div><div class="ind" id="indInt2-2"></div></div>
+      </div>
+
+      <div class="sc-comp" style="left:580px;top:340px;width:120px;height:80px;" id="compHub">
+        <div class="label">CORE HUB</div>
+        <div class="name">MAGI</div>
+        <div class="ind-row"><div class="ind" id="indHub-0"></div><div class="ind" id="indHub-1"></div><div class="ind" id="indHub-2"></div><div class="ind" id="indHub-3"></div></div>
+      </div>
+
+      <div class="sc-comp" style="left:350px;top:30px;width:110px;height:70px;" id="compCore0">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-01</div>
+        <div class="ind-row"><div class="ind" id="indCore0-0"></div><div class="ind" id="indCore0-1"></div><div class="ind" id="indCore0-2"></div><div class="ind" id="indCore0-3"></div><div class="ind" id="indCore0-4"></div><div class="ind" id="indCore0-5"></div></div>
+      </div>
+      <div class="sc-comp" style="left:560px;top:30px;width:110px;height:70px;" id="compCore1">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-02</div>
+        <div class="ind-row"><div class="ind" id="indCore1-0"></div><div class="ind" id="indCore1-1"></div><div class="ind" id="indCore1-2"></div><div class="ind" id="indCore1-3"></div><div class="ind" id="indCore1-4"></div><div class="ind" id="indCore1-5"></div></div>
+      </div>
+      <div class="sc-comp" style="left:770px;top:30px;width:110px;height:70px;" id="compCore2">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-03</div>
+        <div class="ind-row"><div class="ind" id="indCore2-0"></div><div class="ind" id="indCore2-1"></div><div class="ind" id="indCore2-2"></div><div class="ind" id="indCore2-3"></div><div class="ind" id="indCore2-4"></div><div class="ind" id="indCore2-5"></div></div>
+      </div>
+
+      <div class="sc-comp" style="left:370px;top:160px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-01</div>
+      <div class="sc-comp" style="left:580px;top:160px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-02</div>
+      <div class="sc-comp" style="left:790px;top:160px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-03</div>
+
+      <div class="sc-comp" style="left:370px;top:570px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-04</div>
+      <div class="sc-comp" style="left:580px;top:570px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-05</div>
+      <div class="sc-comp" style="left:790px;top:570px;width:70px;height:30px;font-size:8px;padding:4px;">SKT-06</div>
+
+      <div class="sc-comp" style="left:350px;top:650px;width:110px;height:70px;" id="compCore3">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-04</div>
+        <div class="ind-row"><div class="ind" id="indCore3-0"></div><div class="ind" id="indCore3-1"></div><div class="ind" id="indCore3-2"></div><div class="ind" id="indCore3-3"></div><div class="ind" id="indCore3-4"></div><div class="ind" id="indCore3-5"></div></div>
+      </div>
+      <div class="sc-comp" style="left:560px;top:650px;width:110px;height:70px;" id="compCore4">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-05</div>
+        <div class="ind-row"><div class="ind" id="indCore4-0"></div><div class="ind" id="indCore4-1"></div><div class="ind" id="indCore4-2"></div><div class="ind" id="indCore4-3"></div><div class="ind" id="indCore4-4"></div><div class="ind" id="indCore4-5"></div></div>
+      </div>
+      <div class="sc-comp" style="left:770px;top:650px;width:110px;height:70px;" id="compCore5">
+        <div class="label">COMPUTER</div>
+        <div class="name">CORE-06</div>
+        <div class="ind-row"><div class="ind" id="indCore5-0"></div><div class="ind" id="indCore5-1"></div><div class="ind" id="indCore5-2"></div><div class="ind" id="indCore5-3"></div><div class="ind" id="indCore5-4"></div><div class="ind" id="indCore5-5"></div></div>
+      </div>
+
+      <div class="sc-comp" style="left:980px;top:340px;width:140px;height:80px;" id="compMdm">
+        <div class="label">MAG. TAPE</div>
+        <div class="name">MANAGER</div>
+        <div class="ind-row"><div class="ind" id="indMdm-0"></div><div class="ind" id="indMdm-1"></div></div>
+      </div>
+
+      <div class="sc-comp reel-comp" style="left:1166px;top:210px;width:78px;height:92px;" id="compDisc0">
+        <svg viewBox="0 0 70 70" class="reel-svg" id="reelSvg0">
+          <circle cx="35" cy="35" r="33" fill="#111108" stroke="#664400" stroke-width="1.5"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#1a0d00" stroke-width="14"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#CC4400" stroke-width="14"
+                  stroke-dasharray="0 131.95" stroke-linecap="butt" id="reelFill0"
+                  transform="rotate(-90 35 35)"/>
+          <line x1="35" y1="35" x2="35" y2="7" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="59" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="11" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <circle cx="35" cy="35" r="9" fill="#0a0a0a" stroke="#FF6600" stroke-width="1.5"/>
+          <circle cx="31.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="38.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="35" cy="39.5" r="2" fill="#1a0a00"/>
+        </svg>
+        <div class="reel-name">REEL-01</div>
+        <div class="reel-pct" id="reelPct0">0%</div>
+      </div>
+      <div class="sc-comp reel-comp" style="left:1166px;top:320px;width:78px;height:92px;" id="compDisc1">
+        <svg viewBox="0 0 70 70" class="reel-svg" id="reelSvg1">
+          <circle cx="35" cy="35" r="33" fill="#111108" stroke="#664400" stroke-width="1.5"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#1a0d00" stroke-width="14"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#CC4400" stroke-width="14"
+                  stroke-dasharray="0 131.95" stroke-linecap="butt" id="reelFill1"
+                  transform="rotate(-90 35 35)"/>
+          <line x1="35" y1="35" x2="35" y2="7" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="59" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="11" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <circle cx="35" cy="35" r="9" fill="#0a0a0a" stroke="#FF6600" stroke-width="1.5"/>
+          <circle cx="31.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="38.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="35" cy="39.5" r="2" fill="#1a0a00"/>
+        </svg>
+        <div class="reel-name">REEL-02</div>
+        <div class="reel-pct" id="reelPct1">0%</div>
+      </div>
+      <div class="sc-comp reel-comp" style="left:1166px;top:430px;width:78px;height:92px;" id="compDisc2">
+        <svg viewBox="0 0 70 70" class="reel-svg" id="reelSvg2">
+          <circle cx="35" cy="35" r="33" fill="#111108" stroke="#664400" stroke-width="1.5"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#1a0d00" stroke-width="14"/>
+          <circle cx="35" cy="35" r="21" fill="none" stroke="#CC4400" stroke-width="14"
+                  stroke-dasharray="0 131.95" stroke-linecap="butt" id="reelFill2"
+                  transform="rotate(-90 35 35)"/>
+          <line x1="35" y1="35" x2="35" y2="7" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="59" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <line x1="35" y1="35" x2="11" y2="49" stroke="#FF6600" stroke-width="2"/>
+          <circle cx="35" cy="35" r="9" fill="#0a0a0a" stroke="#FF6600" stroke-width="1.5"/>
+          <circle cx="31.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="38.5" cy="32.5" r="2" fill="#1a0a00"/>
+          <circle cx="35" cy="39.5" r="2" fill="#1a0a00"/>
+        </svg>
+        <div class="reel-name">REEL-03</div>
+        <div class="reel-pct" id="reelPct2">0%</div>
+      </div>
+    </div>
+    </div>
+
+    <div class="sc-footer">
+      <span class="live" id="scFootLive">&#9679; LIVE</span>
+      <span id="scFootTask">TASKS: 0 | QUEUE: IDLE</span>
+      <span>GEHIRN SYS // AUTHORIZED</span>
+    </div>
+  </div>
+</section>
+
+<section class="system" id="sys-timer">
+  <div class="nge-root">
+    <div class="scanlines"></div>
+    <div class="nge-header">
+      <div class="nge-logo">NERV // MAGI-03 // TIMER SUBSYSTEM</div>
+      <div class="nge-status" id="statusTxt">STANDBY</div>
+    </div>
+
+    <div class="nge-body">
+      <div class="nge-main">
+        <div class="nge-label">ESTIMATED OPERATIONAL TIME</div>
+        <canvas id="segCanvas" class="seg-canvas" width="380" height="100"></canvas>
+
+        <div class="nge-progress-wrap">
+          <div class="nge-progress-track">
+            <div class="nge-progress-fill" id="progFill" style="width:100%"></div>
+          </div>
+          <div class="nge-tick-row">
+            <span class="nge-tick">0%</span><span class="nge-tick">25%</span><span class="nge-tick">50%</span><span class="nge-tick">75%</span><span class="nge-tick">100%</span>
+          </div>
+        </div>
+
+        <div class="nge-label">PRESET INTERVALS</div>
+        <div class="nge-preset-row">
+          <button class="nge-btn" onclick="setPreset(60)">01:00</button>
+          <button class="nge-btn" onclick="setPreset(180)">03:00</button>
+          <button class="nge-btn" onclick="setPreset(300)">05:00</button>
+          <button class="nge-btn" onclick="setPreset(600)">10:00</button>
+        </div>
+
+        <div class="nge-label">MANUAL INPUT</div>
+        <div class="nge-custom-row">
+          <input class="nge-input" id="inMin" type="number" inputmode="numeric" min="0" max="99" value="0" />
+          <span class="nge-sep">:</span>
+          <input class="nge-input" id="inSec" type="number" inputmode="numeric" min="0" max="59" value="0" />
+          <button class="nge-btn" style="margin-left:4px" onclick="setCustom()">SET</button>
+        </div>
+
+        <div class="nge-pwr-row">
+          <button class="nge-pwr-btn internal" id="btnInternal" onclick="switchInternal()">INTERNAL POWER</button>
+          <button class="nge-pwr-btn external on" id="btnExternal" onclick="switchExternal()">EXTERNAL POWER</button>
+        </div>
+        <div class="nge-recharge-row" id="rechargeRow">
+          <button class="nge-pwr-btn recharge" onclick="startRecharge()">RECHARGE</button>
+        </div>
+      </div>
+
+      <div class="nge-sidebar">
+        <div class="nge-panel">
+          <div class="nge-panel-title">MAGI SYNC DATA</div>
+          <div class="nge-data-row"><span class="nge-data-key">TOTAL</span><span class="nge-data-val" id="sdTotal">00:00</span></div>
+          <div class="nge-data-row"><span class="nge-data-key">ELAPSED</span><span class="nge-data-val hi" id="sdElapsed">00:00</span></div>
+          <div class="nge-data-row"><span class="nge-data-key">REMAIN</span><span class="nge-data-val" id="sdRemain">00:00</span></div>
+        </div>
+        <div class="nge-panel">
+          <div class="nge-panel-title">POWER OUTPUT</div>
+          <div class="nge-data-row"><span class="nge-data-key">DRAW</span><span class="nge-data-val" id="pwrDraw">0 W</span></div>
+          <div class="nge-data-row"><span class="nge-data-key">CAPACITY</span><span class="nge-data-val">3,000 kWh</span></div>
+          <div class="nge-data-row"><span class="nge-data-key">STATE</span><span class="nge-data-val" id="pwrState">EXTERNAL</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nge-footer">
+      <span class="nge-foot-item live" id="clkTxt">CLOCK: --:--:--</span>
+      <span class="nge-foot-item">GEHIRN SYS // AUTHORIZED</span>
+      <span class="nge-foot-item" id="frameTxt">FRAME 000000</span>
+    </div>
+  </div>
+</section>
+
+<div class="modal-overlay" id="inputModal">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-title">DIGITAL INPUT // SELECT MODE</div>
+    <div class="modal-close" onclick="closeModal('inputModal')">&times;</div>
+    <div class="modal-btn-row">
+      <button class="sc-btn" id="inputSingleBtn" onclick="chooseSingle()">SINGLE TASK</button>
+      <button class="sc-btn" id="continuousBtn" onclick="toggleContinuous()">CONTINUOUS</button>
+      <button class="sc-btn" id="inputQuestionBtn" onclick="chooseQuestion()">QUESTION</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="questionModal">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-title">QUERY ENTRY</div>
+    <div class="modal-close" onclick="closeModal('questionModal')">&times;</div>
+    <input class="sc-input" id="questionInput" placeholder="ENTER QUERY..." autocomplete="off" />
+    <button class="sc-btn" onclick="submitQuestion()">TRANSMIT QUERY</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="paperModal">
+  <div class="modal-box" style="max-width:540px;">
+    <div class="modal-title">PAPER OUTPUT LOG</div>
+    <div class="modal-close" onclick="closeModal('paperModal')">&times;</div>
+    <div class="paper-output" id="paperOutput">
+      <div style="color:var(--nge-muted);font-size:10px;text-align:center;padding:30px 0;">[ NO ENTRIES ]</div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;">
+      <button class="sc-btn danger" onclick="clearPaper()">CLEAR LOG</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js" defer></script>
+<script src="js/supercomputer.js" defer></script>
+<script src="js/timer.js" defer></script>
+</body>
+</html>
